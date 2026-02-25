@@ -2,10 +2,30 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32
 import numpy as np 
+from custom_interfaces.srv import SetProcessBool
 
 class PIDController(Node):
     def __init__(self):
         super().__init__('ctrl')
+
+                
+        self.is_active = False # Start disabled
+        self.srv = self.create_service(SetProcessBool, '~/set_enable', self.enable_cb)
+
+    # Add this new method to the PIDController class:
+    def enable_cb(self, request, response):
+        self.is_active = request.enable
+        response.success = True
+        response.message = "Controller activated" if self.is_active else "Controller stopped"
+        self.get_logger().info(response.message)
+        return response
+
+    # Update your control_loop method:
+    def control_loop(self):
+        if not self.is_active:
+            return # Skip calculation if not enabled
+
+
         
         self.declare_parameter('kp', 0.2)
         self.declare_parameter('ki', 2.0)

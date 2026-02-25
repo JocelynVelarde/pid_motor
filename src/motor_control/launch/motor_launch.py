@@ -14,11 +14,11 @@ def generate_launch_description():
         }]
     )
     
-    sp_node = Node(
-        name="sp_gen",
-        package='motor_control',
-        executable='set_point',
-    )
+    # sp_node = Node(
+    #     name="sp_gen",
+    #     package='motor_control',
+    #     executable='set_point',
+    # )
 
     ctrl_node = Node(
         name="ctrl",
@@ -32,4 +32,4 @@ def generate_launch_description():
         }]
     )
     
-    return LaunchDescription([motor_node, sp_node, ctrl_node])
+    return LaunchDescription([motor_node, ctrl_node])

@@ -27,6 +27,27 @@ class DCMotor(Node):
         self.param_T = self.get_parameter('sys_tau_T').value
         self.initial_conditions = self.get_parameter('initial_conditions').value
 
+        self.is_active = False  # Start disabled
+        self.srv = self.create_service(SetProcessBool, '~/set_enable', self.enable_cb)
+
+    # Add this new method to the DCMotor class:
+    def enable_cb(self, request, response):
+        self.is_active = request.enable
+        response.success = True
+        response.message = "Motor activated" if self.is_active else "Motor stopped"
+        self.get_logger().info(response.message)
+        return response
+
+    def timer_cb(self):    
+        if not self.is_active:
+            return 
+
+    
+        self.output_y += (-1.0/self.param_T * self.output_y + self.param_K/self.param_T * self.input_u) * self.sample_time 
+        #Publish the result
+        self.motor_output_msg.data = self.output_y
+        self.motor_speed_pub.publish(self.motor_output_msg)
+
 
         #Set the messages
         self.motor_output_msg = Float32()
